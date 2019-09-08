@@ -65,8 +65,7 @@ public:
     inline void online(std::size_t n, F&& f)
     {
         T var;
-        for (auto i : boost_irange(n)) {
-            (void)i;
+        for (std::size_t i = 0; i < n; ++i) {
             cin >> var;
             f(var);
         }
@@ -75,7 +74,7 @@ public:
 template <class T, std::size_t n>
 std::istream& operator>>(std::istream& in, std::array<T, n>& var)
 {
-    for (auto i : boost_irange(n)) {
+    for (std::size_t i = 0; i < n; ++i) {
         in >> var[i];
     }
     return in;
@@ -122,62 +121,9 @@ public:
     StaticVector(Args&&... args) : Parent(std::forward<Args>(args)...) {}
     StaticVector(input& in, std::size_t n_) : Parent(n_)
     {
-        in.read(static_cast<Parent*>(this)->begin(), n_);
+        for (std::size_t i = 0; i < n_; ++i) in >> static_cast<Parent&>(*this)[i];
     }
 };
-
-template <class T = int, std::size_t digit = 10>
-class DigitPart
-{
-    T x;
-
-public:
-    class iterator
-    {
-        T x;
-
-    public:
-        using value_type = T;
-        using difference_type = std::make_signed_t<T>;
-        using pointer = const T*;
-        using reference = const T;
-        using iterator_category = std::forward_iterator_tag;
-
-        constexpr iterator(T v) : x(v) {}
-        constexpr inline bool operator==(const iterator&) { return x == 0; }
-        constexpr inline bool operator!=(const iterator&) { return x != 0; }
-        constexpr inline T operator*() const { return x % digit; }
-        constexpr inline iterator& operator++()
-        {
-            x /= digit;
-            return *this;
-        }
-        constexpr inline iterator operator++(int)
-        {
-            auto y = x;
-            x /= digit;
-            return iterator(y);
-        }
-    };
-
-public:
-    constexpr DigitPart(T x_) : x(x_) {}
-
-    constexpr inline iterator begin() const { return iterator(x); };
-    constexpr inline iterator end() const { return iterator(0); };
-};
-
-using Vec2i = std::array<int, 2>;
-
-template <class T, std::size_t n>
-T manhattan_distance(const std::array<T, n>& lhs, const std::array<T, n>& rhs)
-{
-    T res = 0;
-    for (auto i : boost_irange(n)) {
-        res += std::abs(lhs[i] - rhs[i]);
-    }
-    return res;
-}
 
 int main()
 {
