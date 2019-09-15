@@ -137,22 +137,46 @@ int main()
         in.read(v.rbegin(), N - 1);
     }
 
-    int days = 1;
-    for (;; ++days) {
-        int i = 0;
-        while (true) {
-            int j = match[i].back() - 1;
-            int k = match[j].back() - 1;
-            if (i == k) {
-                match[i].back() = 0;
-                match[j].back() = 0;
-                ++i;
-                if (i == j) ++i;
-            } else {
-                i = k;
-            }
+    std::queue<std::pair<int, int>> today, next;
+
+    for (int i = 0; i < N; ++i) {
+        int j = match[i].back() - 1;
+        if (j < 0) continue;
+        if (match[j].back() - 1 == i) {
+            match[i].back() = 0;
+            match[j].back() = 0;
+            today.push(std::make_pair(i, j));
         }
     }
 
+    auto reserve = [&](int i) {
+        match[i].pop_back();
+        if (match[i].empty()) return;
+        int j = match[i].back() - 1;
+        if (match[j].empty()) return;
+        if (match[j].back() - 1 == i) {
+            // out << "reserve", i, j;
+            match[i].back() = 0;
+            match[j].back() = 0;
+            next.push(std::make_pair(i, j));
+        }
+    };
+
+    int days = 0, count = 0;
+    for (; !today.empty(); ++days) {
+        count += today.size();
+        for (; !today.empty(); today.pop()) {
+            // out << "match", today.front().first, today.front().second;
+            reserve(today.front().first);
+            reserve(today.front().second);
+        }
+        today = next;
+        next = decltype(next){};
+    }
+    if (count != N * (N - 1) / 2) {
+        out << -1;
+    } else {
+        out << days;
+    }
     return 0;
 }
