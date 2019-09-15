@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <functional>
 #include <algorithm>
@@ -101,7 +102,11 @@ public:
     };
 
 public:
-    output() : cout(std::cout) {}
+    output() : cout(std::cout)
+    {
+        cout << std::fixed << std::setprecision(15);
+    }
+
     template <class T>
     proxy operator<<(T&& val)
     {
