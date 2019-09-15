@@ -3,7 +3,6 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
-#include <numeric>
 #include <vector>
 #include <list>
 #include <queue>
@@ -97,7 +96,7 @@ public:
         template <class T>
         proxy& operator,(T&& val)
         {
-            cout << ' ' << val;
+            cout << val << ' ';
             return *this;
         }
     };
@@ -111,7 +110,7 @@ public:
     template <class T>
     proxy operator<<(T&& val)
     {
-        cout << val;
+        cout << val << ' ';
         return {};
     }
 };
@@ -120,6 +119,13 @@ int main()
 {
     input in;
     output out;
+
+    int N = in.read<int>();
+
+    std::vector<std::int64_t> d(N);
+    in.read(d.begin(), N);
+
+    std::sort(d.begin(), d.end());
 
     return 0;
 }

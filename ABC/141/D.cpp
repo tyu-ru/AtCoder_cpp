@@ -97,7 +97,7 @@ public:
         template <class T>
         proxy& operator,(T&& val)
         {
-            cout << ' ' << val;
+            cout << val << ' ';
             return *this;
         }
     };
@@ -111,7 +111,7 @@ public:
     template <class T>
     proxy operator<<(T&& val)
     {
-        cout << val;
+        cout << val << ' ';
         return {};
     }
 };
@@ -120,6 +120,26 @@ int main()
 {
     input in;
     output out;
+
+    int N, M;
+    in >> N, M;
+    std::vector<int> price(N);
+    in.read(price.begin(), N);
+    std::sort(price.begin(), price.end());
+
+    std::size_t it = N - 1;
+    for (int i = 0; i < M; ++i) {
+        price[it] /= 2;
+        if (it != 0 && price[it] < price[it - 1]) {
+            --it;
+        }
+        if (price[it] < price.back()) {
+            std::sort(price.begin(), price.end());
+            it = N - 1;
+        }
+    }
+
+    out << std::accumulate(price.begin(), price.end(), 0L);
 
     return 0;
 }

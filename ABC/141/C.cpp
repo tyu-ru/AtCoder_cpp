@@ -3,7 +3,6 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
-#include <numeric>
 #include <vector>
 #include <list>
 #include <queue>
@@ -120,6 +119,20 @@ int main()
 {
     input in;
     output out;
+
+    int N, K, Q;
+    in >> N, K, Q;
+
+    std::vector<int> score(N);
+    in.online<int>(Q, [&](int i) { ++score[i - 1]; });
+
+    for (auto s : score) {
+        if (K - Q + s > 0) {
+            out << "Yes";
+        } else {
+            out << "No";
+        }
+    }
 
     return 0;
 }

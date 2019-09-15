@@ -3,7 +3,6 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
-#include <numeric>
 #include <vector>
 #include <list>
 #include <queue>
@@ -97,7 +96,7 @@ public:
         template <class T>
         proxy& operator,(T&& val)
         {
-            cout << ' ' << val;
+            cout << val << ' ';
             return *this;
         }
     };
@@ -111,7 +110,7 @@ public:
     template <class T>
     proxy operator<<(T&& val)
     {
-        cout << val;
+        cout << val << ' ';
         return {};
     }
 };
@@ -120,6 +119,22 @@ int main()
 {
     input in;
     output out;
+
+    auto S = in.read<std::string>();
+    for (std::size_t i = 0; i < S.size(); ++i) {
+        if ((i + 1) % 2) {
+            if (S[i] == 'L') {
+                out << "No";
+                return 0;
+            }
+        } else {
+            if (S[i] == 'R') {
+                out << "No";
+                return 0;
+            }
+        }
+    }
+    out << "Yes";
 
     return 0;
 }

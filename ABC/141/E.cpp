@@ -3,7 +3,6 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
-#include <numeric>
 #include <vector>
 #include <list>
 #include <queue>
@@ -15,6 +14,7 @@
 #include <unordered_set>
 #include <boost/range/irange.hpp>
 #include <boost/container/static_vector.hpp>
+#include <boost/container/string.hpp>
 #include <boost/utility/string_ref.hpp>
 
 template <class Integer>
@@ -97,7 +97,7 @@ public:
         template <class T>
         proxy& operator,(T&& val)
         {
-            cout << ' ' << val;
+            cout << val << ' ';
             return *this;
         }
     };
@@ -111,7 +111,7 @@ public:
     template <class T>
     proxy operator<<(T&& val)
     {
-        cout << val;
+        cout << val << ' ';
         return {};
     }
 };
@@ -120,6 +120,34 @@ int main()
 {
     input in;
     output out;
+
+    int N = in.read<int>();
+    auto S = in.read<std::string>();
+    boost::string_ref ref(&S[0], S.size());
+
+    auto pred = [&](int len) {
+        for (int i = 0; i < N - len * 2; ++i) {
+            boost::string_ref s = ref.substr(i, len);
+            auto t = ref;
+            t.remove_prefix(i + len);
+            if (t.find(s) != boost::string_ref::npos) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    int l = 0, r = N;
+    while (l + 1 < r) {
+        auto m = (l + r) / 2;
+        if (pred(m)) {
+            l = m;
+        } else {
+            r = m;
+        }
+    }
+
+    out << l;
 
     return 0;
 }
