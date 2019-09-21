@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <cmath>
 #include <functional>
+#include <numeric>
 #include <algorithm>
 #include <vector>
 #include <list>
@@ -120,12 +121,36 @@ int main()
     input in;
     output out;
 
-    int N = in.read<int>();
+    std::size_t N = in.read<std::size_t>();
 
-    std::vector<std::int64_t> d(N);
+    std::vector<std::uint64_t> d(N);
     in.read(d.begin(), N);
 
-    std::sort(d.begin(), d.end());
+    auto all = std::accumulate(std::begin(d), std::end(d), std::uint64_t{0}, std::bit_xor<>{});
+
+    std::size_t rank = 0;
+    for (std::uint64_t i = std::uint64_t{1} << 60; i != 0; i >>= 1) {
+        if (all & i) continue;
+
+        for (std::size_t r = rank; r < N; ++r) {
+            if (!(d[r] & i)) continue;
+
+            for (std::size_t rr = 0; rr < N; ++rr) {
+                if (rr == r) continue;
+                if (!(d[rr] & i)) continue;
+                d[rr] ^= d[r];
+            }
+            std::swap(d[rank], d[r]);
+            rank++;
+            break;
+        }
+    }
+    std::uint64_t res = 0;
+    for (auto x : d) {
+        res ^= x;
+    }
+
+    out << (res & (~all)) * 2 + all;
 
     return 0;
 }

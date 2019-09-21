@@ -116,6 +116,32 @@ public:
     }
 };
 
+void Z_algorithm(boost::string_ref str, std::vector<std::size_t>& res)
+{
+    std::size_t c = 0, n = str.length();
+    res.clear();
+    res.resize(n, 0);
+    for (std::size_t i = 1; i < n; ++i) {
+        auto l = i - c;
+        if (i + res[l] < c + res[c]) {
+            res[i] = res[l];
+        } else {
+            auto j = c + res[c] < i ? 0 : c + res[c] - i;
+            while (i + j < n && str[j] == str[i + j]) ++j;
+            res[i] = j;
+            c = i;
+        }
+    }
+    res[0] = n;
+}
+//    my_assert(Z_algorithm("aabaabaaa"), std::vector<std::size_t>({9, 1, 0, 5, 1, 0, 2, 2, 1}));
+std::vector<std::size_t> Z_algorithm(boost::string_ref str)
+{
+    std::vector<std::size_t> res;
+    Z_algorithm(str, res);
+    return std::move(res);
+}
+
 int main()
 {
     input in;
@@ -123,31 +149,18 @@ int main()
 
     int N = in.read<int>();
     auto S = in.read<std::string>();
-    boost::string_ref ref(&S[0], S.size());
+    boost::string_ref ref = S;
 
-    auto pred = [&](int len) {
-        for (int i = 0; i < N - len * 2; ++i) {
-            boost::string_ref s = ref.substr(i, len);
-            auto t = ref;
-            t.remove_prefix(i + len);
-            if (t.find(s) != boost::string_ref::npos) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    int l = 0, r = N;
-    while (l + 1 < r) {
-        auto m = (l + r) / 2;
-        if (pred(m)) {
-            l = m;
-        } else {
-            r = m;
+    std::vector<std::size_t> Z;
+    std::size_t res = 0;
+    for (int i = 0; i < N; ++i) {
+        Z_algorithm(ref.substr(i), Z);
+        for (std::size_t j = 0; j < Z.size(); ++j) {
+            if (Z[j] <= j) res = std::max(Z[j], res);
         }
     }
 
-    out << l;
+    out << res;
 
     return 0;
 }
