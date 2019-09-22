@@ -93,7 +93,7 @@ public:
 
     public:
         proxy() : cout(std::cout) {}
-        ~proxy() { cout << std::endl; }
+        ~proxy() { cout << '\n'; }
         template <class T>
         proxy& operator,(T&& val)
         {
