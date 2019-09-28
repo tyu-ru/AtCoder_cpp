@@ -124,10 +124,37 @@ public:
     }
 };
 
+std::uint64_t gcd(std::uint64_t x, std::uint64_t y)
+{
+    if (x < y) std::swap(x, y);
+    auto z = x % y;
+    if (z == 0) return y;
+    return gcd(y, x % y);
+}
+
+std::size_t prime_factor_count(std::uint64_t x)
+{
+    std::size_t res = 0;
+    for (std::uint64_t i = 2; i * i <= x; ++i) {
+        bool f = false;
+        while (x % i == 0) {
+            x /= i;
+            f = true;
+        }
+        if (f) ++res;
+    }
+    if (x != 1) ++res;
+    return res;
+}
+
 int main()
 {
     input in;
     output out;
+
+    std::uint64_t A, B;
+    in >> A, B;
+    out << prime_factor_count(gcd(A, B)) + 1;
 
     return 0;
 }

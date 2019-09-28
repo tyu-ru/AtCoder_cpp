@@ -129,5 +129,17 @@ int main()
     input in;
     output out;
 
+    int N = in.read<int>();
+
+    std::vector<std::pair<int, int>> A(N);
+    for (int i : boost::irange(0, N)) {
+        A[i] = std::make_pair(i, in.read<int>());
+    }
+    std::sort(A.begin(), A.end(), [](auto& l, auto& r) { return l.second < r.second; });
+
+    for (auto x : A) {
+        std::cout << x.first + 1 << " ";
+    }
+
     return 0;
 }

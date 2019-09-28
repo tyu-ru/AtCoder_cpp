@@ -129,5 +129,12 @@ int main()
     input in;
     output out;
 
+    int N, K;
+    in >> N, K;
+    int res = 0;
+    in.online<int>(N, [&](int h) {if (K<=h)++res; });
+
+    out << res;
+
     return 0;
 }

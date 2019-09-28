@@ -129,5 +129,8 @@ int main()
     input in;
     output out;
 
+    int N = in.read<int>();
+    out << ((N % 2) ? (N / 2 + 1) / static_cast<double>(N) : 0.5);
+
     return 0;
 }
