@@ -17,6 +17,11 @@
 #include <boost/container/static_vector.hpp>
 #include <boost/utility/string_ref.hpp>
 
+template <class Integer>
+auto boost_irange(Integer last) { return boost::irange(static_cast<Integer>(0), last); }
+template <class Integer>
+auto boost_irange(Integer first, Integer last) { return boost::irange(first, last); }
+
 class input
 {
     std::istream& cin;
@@ -115,6 +120,26 @@ int main()
 {
     input in;
     output out;
+
+    int N, D;
+    in >> N, D;
+    std::vector<std::vector<int>> v(N);
+    for (auto& p : v) {
+        p.resize(D);
+        in.read(p.begin(), D);
+    }
+
+    int res = 0;
+    for (int i : boost::irange(0, N)) {
+        for (int j : boost::irange(i + 1, N)) {
+            int d2 = 0;
+            for (int k : boost::irange(0, D)) d2 += (v[i][k] - v[j][k]) * (v[i][k] - v[j][k]);
+            int d = std::sqrt(d2);
+            if (d * d == d2) ++res;
+        }
+    }
+
+    out << res;
 
     return 0;
 }

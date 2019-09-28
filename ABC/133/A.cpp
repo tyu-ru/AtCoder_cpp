@@ -17,6 +17,11 @@
 #include <boost/container/static_vector.hpp>
 #include <boost/utility/string_ref.hpp>
 
+template <class Integer>
+auto boost_irange(Integer last) { return boost::irange(static_cast<Integer>(0), last); }
+template <class Integer>
+auto boost_irange(Integer first, Integer last) { return boost::irange(first, last); }
+
 class input
 {
     std::istream& cin;
@@ -115,6 +120,11 @@ int main()
 {
     input in;
     output out;
+
+    int n, a, b;
+    in >> n, a, b;
+
+    out << std::min(n * a, b);
 
     return 0;
 }

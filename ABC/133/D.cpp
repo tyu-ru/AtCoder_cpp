@@ -116,5 +116,21 @@ int main()
     input in;
     output out;
 
+    int N = in.read<int>();
+
+    std::vector<int> A(N), r(N);
+    in.read(A.begin(), N);
+
+    int x = 0;
+    for (int i : boost::irange(0, N)) x += A[i] * ((i % 2) ? -1 : 1);
+
+    r[0] = x;
+    std::cout << x << " ";
+
+    for (int i : boost::irange(1, N)) {
+        r[i] = 2 * (A[i - 1] - r[i - 1] / 2);
+        std::cout << r[i] << " ";
+    }
+
     return 0;
 }
