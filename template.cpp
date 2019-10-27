@@ -58,6 +58,20 @@ public:
         }
     }
 
+    template <class T>
+    inline std::vector<T> read(std::size_t n)
+    {
+        std::vector<T> res;
+        res.reserve(n);
+
+        for (std::size_t i = 0; i < n; ++i) {
+            T tmp;
+            cin >> tmp;
+            res.emplace_back(tmp);
+        }
+        return res;
+    }
+
     template <class T, class F>
     inline void online(std::size_t n, F&& f)
     {
