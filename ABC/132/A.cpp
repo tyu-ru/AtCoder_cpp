@@ -138,9 +138,9 @@ public:
         for (auto&& x : container) {
             if (!first) {
                 cout << ' ';
+                first = false;
             }
             cout << x;
-            first = false;
         }
     }
 };
@@ -149,6 +149,10 @@ void prog()
 {
     input in;
     output out;
+
+    auto S = in.read<std::string>();
+    std::sort(S.begin(), S.end());
+    out, S[0] == S[1] && S[1] != S[2] && S[2] == S[3] ? "Yes" : "No";
 }
 
 int main()

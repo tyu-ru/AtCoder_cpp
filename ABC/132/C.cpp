@@ -138,9 +138,9 @@ public:
         for (auto&& x : container) {
             if (!first) {
                 cout << ' ';
+                first = false;
             }
             cout << x;
-            first = false;
         }
     }
 };
@@ -149,6 +149,11 @@ void prog()
 {
     input in;
     output out;
+
+    auto N = in.read<int>();
+    auto d = in.read<int>(N);
+    std::sort(std::begin(d), std::end(d));
+    out, d[N / 2] - d[N / 2 - 1];
 }
 
 int main()

@@ -149,6 +149,14 @@ void prog()
 {
     input in;
     output out;
+    int n = in.read<int>();
+    auto v = in.read<int>(n);
+    int c = 0;
+    for (int i : boost::irange(1, n - 1)) {
+        if (v[i - 1] < v[i] && v[i] < v[i + 1]) ++c;
+        if (v[i - 1] > v[i] && v[i] > v[i + 1]) ++c;
+    }
+    out, c;
 }
 
 int main()
