@@ -150,6 +150,11 @@ void prog()
 {
     input in;
     output out;
+
+    uint64_t W, H, x, y;
+    in >> W, H, x, y;
+
+    out, W *H / 2., (2 * x == W && 2 * y == H) ? 1 : 0;
 }
 
 int main()

@@ -150,6 +150,19 @@ void prog()
 {
     input in;
     output out;
+
+    int n, x;
+    in >> n, x;
+    auto l = in.read<int>(n);
+    int d = 0;
+    for (int i : boost::irange(0, n)) {
+        d += l[i];
+        if (x < d) {
+            out, i + 1;
+            return;
+        }
+    }
+    out, n + 1;
 }
 
 int main()

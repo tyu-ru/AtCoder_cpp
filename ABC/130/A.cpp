@@ -150,6 +150,10 @@ void prog()
 {
     input in;
     output out;
+
+    int x, a;
+    in >> x, a;
+    out, x < a ? 0 : 10;
 }
 
 int main()
