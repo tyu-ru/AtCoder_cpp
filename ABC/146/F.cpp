@@ -16,6 +16,8 @@
 #include <boost/range/irange.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/utility/string_ref.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/math/common_factor_rt.hpp>
 
 class input
 {
@@ -95,21 +97,17 @@ class output
 {
     std::ostream& cout;
 
-public:
-    class proxy
+    template <class T, class... Args>
+    void impl(T&& v, Args&&... args)
     {
-        std::ostream& cout;
-
-    public:
-        proxy() : cout(std::cout) {}
-        ~proxy() { cout << '\n'; }
-        template <class T>
-        proxy& operator,(T&& val)
-        {
-            cout << ' ' << val;
-            return *this;
-        }
-    };
+        cout << std::forward<T>(v) << ' ';
+        impl(std::forward<Args>(args)...);
+    }
+    template <class T>
+    void impl(T&& v)
+    {
+        cout << std::forward<T>(v);
+    }
 
 public:
     output() : cout(std::cout)
@@ -117,11 +115,16 @@ public:
         cout << std::fixed << std::setprecision(15);
     }
 
-    template <class T>
-    proxy operator<<(T&& val)
+    template <class... Args>
+    void operator()(Args&&... args)
     {
-        cout << val;
-        return {};
+        impl(std::forward<Args>(args)...);
+        cout << '\n';
+    }
+    template <class... Args>
+    void noreturn(Args&&... args)
+    {
+        impl(std::forward<Args>(args)...);
     }
 
     template <class T>
@@ -131,34 +134,49 @@ public:
         for (auto&& x : container) {
             if (!first) {
                 cout << ' ';
-                first = false;
             }
             cout << x;
+            first = false;
         }
     }
 };
 
-int main()
+void prog()
 {
     input in;
     output out;
 
-    std::uint64_t N, K;
-    in >> N, K;
-    std::vector<std::uint64_t> S(N + 1);
-    for (auto i : boost::irange<std::uint64_t>(0, N)) {
-        S[i + 1] = (S[i] + in.read<std::uint64_t>() - 1) % K;
-    }
-    std::uint64_t res = 0;
-    std::map<std::uint64_t, std::uint64_t> m;
-    for (auto i : boost::irange<std::uint64_t>(0, N + 1)) {
-        if (K <= i) {
-            m[S[i - K]]--;
-        }
-        res += m[S[i]];
-        m[S[i]]++;
-    }
-    out << res;
+    int n, m;
+    std::string s;
+    in >> n, m, s;
 
+    std::reverse(s.begin(), s.end());
+    std::list<int> l;
+    int p = 0;
+    while (true) {
+        if (p + m >= n) {
+            l.push_front(n - p);
+            break;
+        }
+        bool f = false;
+        for (auto d : boost::irange(m, 0, -1)) {
+            if (s[p + d] == '0') {
+                f = true;
+                l.push_front(d);
+                p += d;
+                break;
+            }
+        }
+        if (!f) {
+            out(-1);
+            return;
+        }
+    }
+    out.print(l);
+}
+
+int main()
+{
+    prog();
     return 0;
 }

@@ -97,26 +97,17 @@ class output
 {
     std::ostream& cout;
 
-public:
-    template <bool nl>
-    class proxy
+    template <class T, class... Args>
+    void impl(T&& v, Args&&... args)
     {
-        std::ostream& cout;
-
-    public:
-        proxy() : cout(std::cout) {}
-        ~proxy() { final(); }
-        template <class T>
-        proxy& operator,(T&& val)
-        {
-            cout << ' ' << val;
-            return *this;
-        }
-        template <bool f = nl>
-        auto final() -> std::enable_if_t<f> { cout << '\n'; }
-        template <bool f = nl>
-        auto final() -> std::enable_if_t<!f> {}
-    };
+        cout << std::forward<T>(v) << ' ';
+        impl(std::forward<Args>(args)...);
+    }
+    template <class T>
+    void impl(T&& v)
+    {
+        cout << std::forward<T>(v);
+    }
 
 public:
     output() : cout(std::cout)
@@ -124,13 +115,17 @@ public:
         cout << std::fixed << std::setprecision(15);
     }
 
-    template <class T>
-    proxy<true> operator,(T&& val)
+    template <class... Args>
+    void operator()(Args&&... args)
     {
-        cout << val;
-        return {};
+        impl(std::forward<Args>(args)...);
+        cout << '\n';
     }
-    proxy<false> noreturn() { return {}; }
+    template <class... Args>
+    void noreturn(Args&&... args)
+    {
+        impl(std::forward<Args>(args)...);
+    }
 
     template <class T>
     void print(const T& container)
