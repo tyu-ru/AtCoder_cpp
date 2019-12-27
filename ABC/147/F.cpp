@@ -16,6 +16,8 @@
 #include <boost/range/irange.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/utility/string_ref.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/math/common_factor_rt.hpp>
 
 class input
 {
@@ -96,19 +98,24 @@ class output
     std::ostream& cout;
 
 public:
+    template <bool nl>
     class proxy
     {
         std::ostream& cout;
 
     public:
         proxy() : cout(std::cout) {}
-        ~proxy() { cout << '\n'; }
+        ~proxy() { final(); }
         template <class T>
         proxy& operator,(T&& val)
         {
             cout << ' ' << val;
             return *this;
         }
+        template <bool f = nl>
+        auto final() -> std::enable_if_t<f> { cout << '\n'; }
+        template <bool f = nl>
+        auto final() -> std::enable_if_t<!f> {}
     };
 
 public:
@@ -118,11 +125,12 @@ public:
     }
 
     template <class T>
-    proxy operator<<(T&& val)
+    proxy<true> operator,(T&& val)
     {
         cout << val;
         return {};
     }
+    proxy<false> noreturn() { return {}; }
 
     template <class T>
     void print(const T& container)
@@ -131,86 +139,70 @@ public:
         for (auto&& x : container) {
             if (!first) {
                 cout << ' ';
-                first = false;
             }
             cout << x;
+            first = false;
         }
     }
 };
 
-template <std::uint64_t mod = 1000000000 + 7>
-class ModInt
-{
-    std::uint64_t v;
-
-public:
-    ModInt(std::uint64_t x) : v(x % mod){};
-    std::uint64_t value() const { return v; }
-
-    ModInt& operator+=(const ModInt& rhs)
-    {
-        v += rhs.v;
-        v %= mod;
-        return *this;
-    }
-    ModInt& operator-=(const ModInt& rhs)
-    {
-        if (v >= rhs.v) {
-            v -= rhs.v;
-            return *this;
-        }
-        std::uint64_t t = rhs.v - v;
-        v = mod - t;
-        return *this;
-    }
-    ModInt& operator*=(const ModInt& rhs)
-    {
-        __uint128_t t = v;
-        t *= rhs.v;
-        v = t % mod;
-        return *this;
-    }
-    friend ModInt operator+(const ModInt& lhs, const ModInt& rhs)
-    {
-        auto t = lhs;
-        t += rhs;
-        return t;
-    }
-    friend ModInt operator-(const ModInt& lhs, const ModInt& rhs)
-    {
-        auto t = lhs;
-        t -= rhs;
-        return t;
-    }
-    friend ModInt operator*(const ModInt& lhs, const ModInt& rhs)
-    {
-        auto t = lhs;
-        t *= rhs;
-        return t;
-    }
-};
-
-int main()
+void prog()
 {
     input in;
     output out;
 
-    auto N = in.read<std::uint64_t>();
-    auto A = in.read<std::uint64_t>(N);
-    std::array<std::uint64_t, 60> bits = {};
-    for (auto a : A) {
-        for (auto j : boost::irange<std::size_t>(0, 60)) {
-            if (a & (std::uint64_t{1} << j)) ++bits[j];
+    int64_t n, x, d;
+    in >> n, x, d;
+
+    if (d == 0) {
+        if (x == 0)
+            out, 1;
+        else
+            out, n + 1;
+        return;
+    }
+
+    if (d < 0) {
+        d = -d;
+        x = -x;
+    }
+
+    // range[l,r]
+    auto pick = [](auto n, auto k) {
+        std::pair<int64_t, int64_t> res;
+        res.first = k * (0 + k - 1) / 2;
+        res.second = k * (n - 1 + n - k) / 2;
+        return res;
+    };
+
+    std::map<int64_t, std::map<int64_t, int64_t>> s;
+    for (auto k : boost::irange<int64_t>(0, n + 1)) {
+        int64_t c = x * k;
+        int64_t m = ((c % d) + d) % d;
+        int64_t y = (c - m) / d;
+        auto range = pick(n, k);
+        s[m][y + range.first] += 1;
+        s[m][y + range.second + 1] -= 1;
+    }
+
+    int64_t res = 0;
+    for (auto&& v : s) {
+        int64_t c = 0, p = 0;
+        for (auto&& m : v.second) {
+            if (c == 0) {
+                p = m.first;
+            }
+            c += m.second;
+            if (c == 0) {
+                res += m.first - p;
+            }
         }
     }
+    out, res;
+}
 
-    ModInt<> res = 0;
-    for (auto i : boost::irange(0, 60)) {
-        auto x = std::uint64_t{1} << i;
-        ModInt<> y = bits[i] * (N - bits[i]);
-        res += y * x;
-    }
-    out << res.value();
-
+int main()
+{
+    prog();
     return 0;
 }

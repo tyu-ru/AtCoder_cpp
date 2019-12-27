@@ -16,6 +16,8 @@
 #include <boost/range/irange.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/utility/string_ref.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/math/common_factor_rt.hpp>
 
 class input
 {
@@ -96,19 +98,24 @@ class output
     std::ostream& cout;
 
 public:
+    template <bool nl>
     class proxy
     {
         std::ostream& cout;
 
     public:
         proxy() : cout(std::cout) {}
-        ~proxy() { cout << '\n'; }
+        ~proxy() { final(); }
         template <class T>
         proxy& operator,(T&& val)
         {
             cout << ' ' << val;
             return *this;
         }
+        template <bool f = nl>
+        auto final() -> std::enable_if_t<f> { cout << '\n'; }
+        template <bool f = nl>
+        auto final() -> std::enable_if_t<!f> {}
     };
 
 public:
@@ -118,11 +125,12 @@ public:
     }
 
     template <class T>
-    proxy operator<<(T&& val)
+    proxy<true> operator,(T&& val)
     {
         cout << val;
         return {};
     }
+    proxy<false> noreturn() { return {}; }
 
     template <class T>
     void print(const T& container)
@@ -131,63 +139,64 @@ public:
         for (auto&& x : container) {
             if (!first) {
                 cout << ' ';
-                first = false;
             }
             cout << x;
+            first = false;
         }
     }
 };
 
-int main()
+void prog()
 {
     input in;
     output out;
 
-    auto N = in.read<int>();
+    auto N = in.read<uint32_t>();
     std::vector<std::map<int, bool>> test(N);
-    for (auto i : boost::irange(0, N)) {
+    for (auto i : boost::irange(0u, N)) {
         auto n = in.read<int>();
         for (auto j : boost::irange(0, n)) {
             int a, b;
             in >> a, b;
+            a -= 1;
             test[i][a] = (bool)b;
         }
     }
 
-    auto check = [&](int n) -> bool {
-        std::vector<int> assum(N);
-        for (auto i : boost::irange(N - n, N)) assum[i] = 1;
-        do {
-            std::map<int, bool> test2;
-            bool conflict = false;
-            for (auto i : boost::irange(0, N)) {
-                if (!assum[i]) continue;
-                for (auto&& p : test[i]) {
-                    if (assum[p.first - 1] != p.second ||
-                        (test2.count(p.first) != 0 && test2[p.first] != p.second)) {
-                        conflict = true;
-                        break;
-                    } else {
-                        test2[p.first] = p.second;
-                    }
+    int res = 0;
+    for (uint32_t i = 0; i < (1 << N); ++i) {
+        std::map<int, bool> t;
+        bool f = true;
+        for (uint32_t j = 0; j < N; ++j) {
+            if ((i & (1 << j)) == 0) continue;
+            for (auto p : test[j]) {
+                if (t.count(p.first) == 0) {
+                    t[p.first] = p.second;
+                    continue;
+                } else if (t[p.first] != p.second) {
+                    f = false;
+                    break;
                 }
-                if (conflict) break;
             }
-            if (!conflict) return true;
-        } while (std::next_permutation(assum.begin(), assum.end()));
-        return false;
-    };
-
-    int l = 0, r = N;
-    while (r - l != 1) {
-        int m = l + (r - l) / 2;
-        if (check(m)) {
-            l = m;
-        } else {
-            r = m;
+            if (!f) break;
         }
-    }
-    out << l;
+        if (!f) continue;
 
+        for (auto p : t) {
+            if (((i >> p.first) & 1) != (p.second ? 1 : 0)) {
+                f = false;
+                break;
+            }
+        }
+        if (!f) continue;
+        res = std::max(res, __builtin_popcountl(i));
+    }
+
+    out, res;
+}
+
+int main()
+{
+    prog();
     return 0;
 }

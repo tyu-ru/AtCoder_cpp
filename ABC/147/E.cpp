@@ -16,6 +16,8 @@
 #include <boost/range/irange.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/utility/string_ref.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/math/common_factor_rt.hpp>
 
 class input
 {
@@ -96,19 +98,24 @@ class output
     std::ostream& cout;
 
 public:
+    template <bool nl>
     class proxy
     {
         std::ostream& cout;
 
     public:
         proxy() : cout(std::cout) {}
-        ~proxy() { cout << '\n'; }
+        ~proxy() { final(); }
         template <class T>
         proxy& operator,(T&& val)
         {
             cout << ' ' << val;
             return *this;
         }
+        template <bool f = nl>
+        auto final() -> std::enable_if_t<f> { cout << '\n'; }
+        template <bool f = nl>
+        auto final() -> std::enable_if_t<!f> {}
     };
 
 public:
@@ -118,11 +125,12 @@ public:
     }
 
     template <class T>
-    proxy operator<<(T&& val)
+    proxy<true> operator,(T&& val)
     {
         cout << val;
         return {};
     }
+    proxy<false> noreturn() { return {}; }
 
     template <class T>
     void print(const T& container)
@@ -131,86 +139,87 @@ public:
         for (auto&& x : container) {
             if (!first) {
                 cout << ' ';
-                first = false;
             }
             cout << x;
+            first = false;
         }
     }
 };
 
-template <std::uint64_t mod = 1000000000 + 7>
-class ModInt
+template <class T>
+class Map2d
 {
-    std::uint64_t v;
+    std::size_t w = 0, h = 0;
+    std::vector<T> m;
 
 public:
-    ModInt(std::uint64_t x) : v(x % mod){};
-    std::uint64_t value() const { return v; }
+    Map2d(std::size_t w_, std::size_t h_, const T& v = T())
+    {
+        w = w_;
+        h = h_;
+        m.resize(w * h, v);
+    }
+    Map2d(std::size_t w_, std::size_t h_, std::vector<T>&& v)
+    {
+        w = w_;
+        h = h_;
+        m = std::move(v);
+        m.resize(w * h);
+    }
 
-    ModInt& operator+=(const ModInt& rhs)
+    T& at(std::size_t i, std::size_t j)
     {
-        v += rhs.v;
-        v %= mod;
-        return *this;
-    }
-    ModInt& operator-=(const ModInt& rhs)
-    {
-        if (v >= rhs.v) {
-            v -= rhs.v;
-            return *this;
-        }
-        std::uint64_t t = rhs.v - v;
-        v = mod - t;
-        return *this;
-    }
-    ModInt& operator*=(const ModInt& rhs)
-    {
-        __uint128_t t = v;
-        t *= rhs.v;
-        v = t % mod;
-        return *this;
-    }
-    friend ModInt operator+(const ModInt& lhs, const ModInt& rhs)
-    {
-        auto t = lhs;
-        t += rhs;
-        return t;
-    }
-    friend ModInt operator-(const ModInt& lhs, const ModInt& rhs)
-    {
-        auto t = lhs;
-        t -= rhs;
-        return t;
-    }
-    friend ModInt operator*(const ModInt& lhs, const ModInt& rhs)
-    {
-        auto t = lhs;
-        t *= rhs;
-        return t;
+        return m[i + j * w];
     }
 };
 
-int main()
+void prog()
 {
     input in;
     output out;
 
-    auto N = in.read<std::uint64_t>();
-    auto A = in.read<std::uint64_t>(N);
-    std::array<std::uint64_t, 60> bits = {};
-    for (auto a : A) {
-        for (auto j : boost::irange<std::size_t>(0, 60)) {
-            if (a & (std::uint64_t{1} << j)) ++bits[j];
+    int w, h;
+    in >> h, w;
+    std::size_t max = 0;
+    Map2d<int> m(w, h, [&] {
+        auto a = in.read<int>(w * h);
+        auto b = in.read<int>(w * h);
+        for (std::size_t i = 0; i < w * h; ++i) {
+            a[i] = std::abs(a[i] - b[i]);
+            max = std::max((int)max, a[i]);
+        }
+        return a;
+    }());
+
+    max = max * (w + h) + 1;
+    Map2d<std::vector<bool>> dp(w, h, std::vector<bool>(max, false));
+    dp.at(0, 0)[m.at(0, 0)] = true;
+    for (auto j : boost::irange<std::size_t>(0, h)) {
+        for (auto i : boost::irange<std::size_t>(0, w)) {
+            if (i == 0 && j == 0) continue;
+            auto& dp_ = dp.at(i, j);
+            for (auto k : boost::irange<std::size_t>(0, max)) {
+                if (i != 0 && std::abs(dp.at(i - 1, j)[k])) {
+                    dp_[k + m.at(i, j)] = true;
+                    dp_[std::abs((int)k - m.at(i, j))] = true;
+                }
+                if (j != 0 && std::abs(dp.at(i, j - 1)[k])) {
+                    dp_[k + m.at(i, j)] = true;
+                    dp_[std::abs((int)k - m.at(i, j))] = true;
+                }
+            }
         }
     }
-
-    ModInt<> res = 0;
-    for (auto i : boost::irange(0, 60)) {
-        auto x = std::uint64_t{1} << i;
-        ModInt<> y = bits[i] * (N - bits[i]);
-        res += y * x;
+    for (auto i : boost::irange<std::size_t>(0, max)) {
+        if (dp.at(w - 1, h - 1)[i]) {
+            out, i;
+            return;
+        }
     }
-    out << res.value();
+}
 
+int main()
+{
+    prog();
     return 0;
 }
