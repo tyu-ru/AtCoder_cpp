@@ -183,18 +183,24 @@ void prog()
     }
 
     // dp[i][j] : i番目まで　i番を残す　j+1個残す cost
-    Map2d<int> dp(n, n - k, -1);
+    Map2d<uint64_t> dp(n, n - k, std::numeric_limits<uint64_t>::max());
     for (int i : boost::irange(0, n)) dp.at(i, 0) = h[i];
 
     for (int j : boost::irange(1, n - k)) {
         for (int i : boost::irange(j, n)) {
-            int m = dp.at(0, j - 1);
-            for (int k : boost::irange(1, i - 1)) {
-                m = std::min(m, dp.at(k, j - 1));
+            auto m = std::numeric_limits<uint64_t>::max();
+            for (int k : boost::irange(j - 1, i)) {
+                m = std::min(m, std::max(0, h[i] - h[k]) + dp.at(k, j - 1));
             }
-            dp.at(i, j) = ;
+            dp.at(i, j) = m;
+            // out(i, j, dp.at(i, j));
         }
     }
+    auto res = std::numeric_limits<uint64_t>::max();
+    for (int i : boost::irange(n - k - 1, n)) {
+        res = std::min(res, dp.at(i, n - k - 1));
+    }
+    out(res);
 }
 
 int main()
