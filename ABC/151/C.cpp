@@ -138,7 +138,6 @@ public:
             cout << x;
             first = false;
         }
-        cout<<'\n';
     }
 };
 
@@ -146,6 +145,27 @@ void prog()
 {
     input in;
     output out;
+
+    int n, m;
+    in >> n, m;
+
+    std::vector<int> table(n, 0);
+    int seitou = 0, penalty = 0;
+    for (auto i : boost::irange(0, m)) {
+        int p;
+        std::string s;
+        in >> p, s;
+        --p;
+        if (table[p] < 0) continue;
+        if (s == "AC") {
+            ++seitou;
+            penalty += table[p];
+            table[p] = -1;
+        } else {
+            table[p]++;
+        }
+    }
+    out(seitou, penalty);
 }
 
 int main()

@@ -22,7 +22,13 @@ public:
     static constexpr auto mod = m;
 
 public:
+    ModInt() : v(0){};
     ModInt(std::uint64_t x) : v(x % mod){};
+    ModInt(const ModInt&) = default;
+    ModInt(ModInt&&) = default;
+    ModInt& operator=(const ModInt&) = default;
+    ModInt& operator=(ModInt&&) = default;
+
     std::uint64_t value() const { return v; }
 
     ModInt& operator+=(const ModInt& rhs)
@@ -84,15 +90,18 @@ public:
     }
 
     // invers [0,n]
-    static std::vector<ModInt> inv(std::size_t n)
+    static const std::vector<ModInt>& inv(std::size_t n)
     {
-        std::vector<ModInt<>> res(n + 1, 0);
-        res[0] = 1;
-        res[1] = 1;
-        for (std::size_t i = 2; i <= n; ++i) {
-            res[i] = (mod - mod / i) * res[mod % i];
+        static std::vector<ModInt<>> buf(2, 1);
+        if (buf.size() > n) {
+            return buf;
         }
-        return res;
+        auto old = buf.size();
+        buf.resize(n + 1, 0);
+        for (std::size_t i = old; i <= n; ++i) {
+            buf[i] = (mod - mod / i) * buf[mod % i];
+        }
+        return buf;
     }
 };
 

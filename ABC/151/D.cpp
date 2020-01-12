@@ -138,7 +138,6 @@ public:
             cout << x;
             first = false;
         }
-        cout<<'\n';
     }
 };
 
@@ -146,6 +145,43 @@ void prog()
 {
     input in;
     output out;
+
+    int h, w;
+    in >> h, w;
+
+    std::array<std::array<bool, 20>, 20> map;
+    for (auto j : boost::irange(0, h)) {
+        for (auto i : boost::irange(0, w)) {
+            map[j][i] = in.read<char>() == '.';
+        }
+    }
+
+    int res = 0;
+    for (auto j : boost::irange(0, h)) {
+        for (auto i : boost::irange(0, w)) {
+            if (!map[j][i]) continue;
+            std::array<std::array<bool, 20>, 20> d = map;
+            std::queue<std::tuple<int, int, int>> q;
+            q.emplace(i, j, 0);
+            while (!q.empty()) {
+                int i, j, dd;
+                std::tie(i, j, dd) = q.front();
+                q.pop();
+                res = std::max(res, dd);
+                d[j][i] = false;
+                int di[] = {1, 0, -1, 0}, dj[] = {0, 1, 0, -1};
+                for (auto k : boost::irange(0, 4)) {
+                    int ni = i + di[k], nj = j + dj[k];
+                    if (ni < 0 || w <= ni || nj < 0 || h <= nj) continue;
+                    if (d[nj][ni]) {
+                        q.emplace(ni, nj, dd + 1);
+                        d[nj][ni] = false;
+                    }
+                }
+            }
+        }
+    }
+    out(res);
 }
 
 int main()

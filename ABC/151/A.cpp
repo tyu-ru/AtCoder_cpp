@@ -138,7 +138,6 @@ public:
             cout << x;
             first = false;
         }
-        cout<<'\n';
     }
 };
 
@@ -146,6 +145,8 @@ void prog()
 {
     input in;
     output out;
+
+    out(static_cast<char>(in.read<char>() + 1));
 }
 
 int main()

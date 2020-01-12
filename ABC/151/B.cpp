@@ -138,7 +138,6 @@ public:
             cout << x;
             first = false;
         }
-        cout<<'\n';
     }
 };
 
@@ -146,6 +145,13 @@ void prog()
 {
     input in;
     output out;
+
+    int n, k, m;
+    in >> n, k, m;
+    auto a = in.read<int>(n - 1);
+    auto sum = std::accumulate(std::begin(a), std::end(a), 0);
+    auto res = n * m - sum;
+    out(res <= k ? std::max(res, 0) : -1);
 }
 
 int main()
