@@ -14,7 +14,11 @@ TMP="$CONTEST $CONTEST_NUM $PROBLEM"
 if [ "$FIL" != "$TMP" ]; then
 
 rm -rf test
+if [ "$CONTEST" = "dowacon" ] ; then
+oj dl https://atcoder.jp/contests/dwacon6th-prelims/tasks/dwacon6th_prelims_${PROBLEM,,}
+else
 oj dl https://atcoder.jp/contests/${CONTEST,,}${CONTEST_NUM}/tasks/${CONTEST,,}${CONTEST_NUM}_${PROBLEM,,}
+fi
 echo $TMP > case.txt
 
 fi
