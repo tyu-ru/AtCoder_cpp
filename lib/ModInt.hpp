@@ -1,5 +1,3 @@
-#pragma once
-
 // ax+by=gcd(a,b)となるx,yを求める
 std::uint64_t extGCD(std::int64_t a, std::int64_t b, std::int64_t& x, std::int64_t& y)
 {
