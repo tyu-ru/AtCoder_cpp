@@ -1,5 +1,3 @@
-#pragma once
-
 template <class Integer>
 Integer ceil(Integer x, Integer y)
 {
