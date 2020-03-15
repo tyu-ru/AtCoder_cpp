@@ -136,6 +136,15 @@ void prog()
 {
     input in;
     output out;
+
+    boost::multiprecision::cpp_int a, b, c;
+    in >> a, b, c;
+    auto d = c - a - b;
+    if (d < 0) {
+        out("No");
+        return;
+    }
+    out((4 * a * b < d * d) ? "Yes" : "No");
 }
 
 int main()

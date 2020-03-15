@@ -132,10 +132,23 @@ public:
     }
 };
 
+template <class Integer>
+Integer ceil(Integer x, Integer y)
+{
+    return (x + y - 1) / y;
+}
+
 void prog()
 {
     input in;
     output out;
+    std::uint64_t h, w;
+    in >> h, w;
+    if (h == 1 || w == 1) {
+        out(1);
+    } else {
+        out(ceil(h * w, std::uint64_t{2}));
+    }
 }
 
 int main()

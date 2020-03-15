@@ -132,10 +132,29 @@ public:
     }
 };
 
+std::list<std::string> fn(int n)
+{
+    if (n == 1) return {"a"};
+    std::list<std::string> res;
+
+    auto prev = fn(n - 1);
+    for (auto&& s : prev) {
+        char m = *std::max_element(s.begin(), s.end());
+        for (char c = 'a'; c <= m + 1; ++c) {
+            res.push_back(s + c);
+        }
+    }
+    return res;
+}
+
 void prog()
 {
     input in;
     output out;
+    int n = in.read<int>();
+    for (auto&& s : fn(n)) {
+        out(s);
+    }
 }
 
 int main()
