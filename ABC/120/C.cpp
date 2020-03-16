@@ -14,7 +14,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <boost/range/irange.hpp>
-#include <boost/range/adaptor/reversed.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/utility/string_ref.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
@@ -44,8 +43,6 @@ std::istream& operator>>(std::istream& in, std::tuple<Args...>& x)
     tuple_input_impl<std::index_sequence_for<Args...>>::f(x);
     return in;
 }
-template <class T1, class T2>
-std::istream& operator>>(std::istream& in, std::pair<T1, T2>& x) { return in >> x.first >> x.second; }
 
 template <class T>
 T read()
@@ -93,6 +90,15 @@ void print(const T& container)
 
 void prog()
 {
+    auto s = read<std::string>();
+    int o = 0, i = 0;
+    for (auto c : s) {
+        if (c == '0')
+            ++o;
+        else
+            ++i;
+    }
+    out(i + o - std::abs(i - o));
 }
 
 int main()

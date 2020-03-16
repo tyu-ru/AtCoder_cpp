@@ -91,8 +91,58 @@ void print(const T& container)
     std::cout << '\n';
 }
 
+class UnionFind
+{
+    std::vector<std::size_t> t;
+    std::vector<std::size_t> s;
+
+public:
+    UnionFind(std::size_t n) : t(n), s(n, 1)
+    {
+        for (std::size_t i = 0; i < n; ++i) t[i] = i;
+    }
+
+    void unite(std::size_t a, std::size_t b)
+    {
+        if (root(a) == root(b)) return;
+        auto tmp = s[root(a)];
+        s[root(a)] = 0;
+        s[root(b)] += tmp;
+        t[root(a)] = root(b);
+    }
+    std::size_t root(std::size_t a)
+    {
+        if (t[a] == a) return a;
+        auto res = root(t[a]);
+        t[a] = res;
+        return res;
+    }
+    std::size_t size(std::size_t a)
+    {
+        return s[root(a)];
+    }
+};
+
 void prog()
 {
+    std::uint64_t n, m;
+    std::cin >> n >> m;
+    UnionFind islands(n);
+    auto bridge = read<std::pair<std::uint64_t, std::uint64_t>>(m);
+    std::vector<std::uint64_t> res;
+    res.push_back(n * (n - 1) / 2);
+    for (auto b : bridge | boost::adaptors::reversed) {
+        if (islands.root(b.first - 1) == islands.root(b.second - 1)) {
+            res.push_back(res.back());
+            continue;
+        }
+        res.push_back(res.back() - islands.size(b.first - 1) * islands.size(b.second - 1));
+        islands.unite(b.first - 1, b.second - 1);
+    }
+    res.pop_back();
+    for (auto r : res | boost::adaptors::reversed) {
+        out(r);
+    }
 }
 
 int main()
