@@ -90,6 +90,16 @@ void print(const T& container)
 
 void prog()
 {
+    auto s = read<std::string>();
+    int res = 0, ren = 0;
+    for (auto c : s) {
+        if (c == 'A' || c == 'T' || c == 'G' || c == 'C')
+            ++ren;
+        else
+            ren = 0;
+        res = std::max(res, ren);
+    }
+    out(res);
 }
 
 int main()

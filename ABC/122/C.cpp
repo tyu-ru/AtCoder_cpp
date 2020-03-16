@@ -90,6 +90,24 @@ void print(const T& container)
 
 void prog()
 {
+    int n, q;
+    std::string s;
+    std::cin >> n >> q >> s;
+    std::vector<int> a(n + 1);
+    for (auto i : boost::irange(0, n - 1)) {
+        if (s[i] == 'A' && s[i + 1] == 'C') {
+            a[i + 1] = a[i] + 1;
+        } else {
+            a[i + 1] = a[i];
+        }
+    }
+    a[n] = a[n - 1];
+    // print(a);
+    for (auto i : boost::irange(0, q)) {
+        int l, r;
+        std::cin >> l >> r;
+        out(a[r - 1] - a[l - 1]);
+    }
 }
 
 int main()

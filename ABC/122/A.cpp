@@ -90,6 +90,22 @@ void print(const T& container)
 
 void prog()
 {
+    char c;
+    std::cin >> c;
+    switch (c) {
+    case 'A':
+        out('T');
+        break;
+    case 'T':
+        out('A');
+        break;
+    case 'C':
+        out('G');
+        break;
+    case 'G':
+        out('C');
+        break;
+    }
 }
 
 int main()
