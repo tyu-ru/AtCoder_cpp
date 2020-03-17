@@ -93,20 +93,28 @@ void print(const T& container)
 
 void prog()
 {
-    auto f = [](char c) { return c - '0'; };
-    auto s = read<std::string>();
-    int n1 = f(s[0]) * 10 + f(s[1]);
-    int n2 = f(s[2]) * 10 + f(s[3]);
-    bool f1 = 0 < n1 && n1 <= 12;
-    bool f2 = 0 < n2 && n2 <= 12;
-    if (f1 && f2) {
-        out("AMBIGUOUS");
-    } else if (!f1 && !f2) {
-        out("NA");
-    } else if (f1) {
-        out("MMYY");
-    } else {
-        out("YYMM");
+    auto n = read<int>();
+    auto v = read<std::tuple<int, int, int>>(n - 1);
+    std::vector<std::vector<std::pair<int, int>>> tree(n);
+    for (auto vv : v) {
+        tree[std::get<0>(vv) - 1].emplace_back(std::get<1>(vv) - 1, std::get<2>(vv) % 2);
+        tree[std::get<1>(vv) - 1].emplace_back(std::get<0>(vv) - 1, std::get<2>(vv) % 2);
+    }
+    std::vector<int> color(n);
+    std::queue<std::tuple<int, int, int>> q;
+    q.emplace(-1, 0, 0);
+    while (!q.empty()) {
+        int b, i, c;
+        std::tie(b, i, c) = q.front();
+        q.pop();
+        color[i] = c;
+        for (auto v : tree[i]) {
+            if (v.first == b) continue;
+            q.emplace(i, v.first, v.second ? 1 - c : c);
+        }
+    }
+    for (auto c : color) {
+        out(c);
     }
 }
 

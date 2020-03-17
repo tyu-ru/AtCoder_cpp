@@ -90,24 +90,51 @@ void print(const T& container)
     }
     std::cout << '\n';
 }
+class UnionFind
+{
+    std::vector<std::size_t> t;
+    std::vector<std::size_t> s;
+
+public:
+    UnionFind(std::size_t n) : t(n), s(n, 1)
+    {
+        for (std::size_t i = 0; i < n; ++i) t[i] = i;
+    }
+
+    void unite(std::size_t a, std::size_t b)
+    {
+        if (root(a) == root(b)) return;
+        auto tmp = s[root(a)];
+        s[root(a)] = 0;
+        s[root(b)] += tmp;
+        t[root(a)] = root(b);
+    }
+    std::size_t root(std::size_t a)
+    {
+        if (t[a] == a) return a;
+        auto res = root(t[a]);
+        t[a] = res;
+        return res;
+    }
+    std::size_t size(std::size_t a)
+    {
+        return s[root(a)];
+    }
+};
 
 void prog()
 {
-    auto f = [](char c) { return c - '0'; };
-    auto s = read<std::string>();
-    int n1 = f(s[0]) * 10 + f(s[1]);
-    int n2 = f(s[2]) * 10 + f(s[3]);
-    bool f1 = 0 < n1 && n1 <= 12;
-    bool f2 = 0 < n2 && n2 <= 12;
-    if (f1 && f2) {
-        out("AMBIGUOUS");
-    } else if (!f1 && !f2) {
-        out("NA");
-    } else if (f1) {
-        out("MMYY");
-    } else {
-        out("YYMM");
+    int n, m;
+    std::cin >> n >> m;
+    UnionFind uf(n);
+    for (auto x : read<std::tuple<int, int, int>>(m)) {
+        uf.unite(std::get<0>(x) - 1, std::get<1>(x) - 1);
     }
+    std::set<int> s;
+    for (int i : boost::irange(0, n)) {
+        s.emplace(uf.root(i));
+    }
+    out(s.size());
 }
 
 int main()

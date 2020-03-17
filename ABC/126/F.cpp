@@ -93,21 +93,30 @@ void print(const T& container)
 
 void prog()
 {
-    auto f = [](char c) { return c - '0'; };
-    auto s = read<std::string>();
-    int n1 = f(s[0]) * 10 + f(s[1]);
-    int n2 = f(s[2]) * 10 + f(s[3]);
-    bool f1 = 0 < n1 && n1 <= 12;
-    bool f2 = 0 < n2 && n2 <= 12;
-    if (f1 && f2) {
-        out("AMBIGUOUS");
-    } else if (!f1 && !f2) {
-        out("NA");
-    } else if (f1) {
-        out("MMYY");
-    } else {
-        out("YYMM");
+    std::uint64_t m, k;
+    std::cin >> m >> k;
+    if (k == 0) {
+        for (auto i : boost::irange(0ul, (1ul << m))) {
+            out_noreturn(i, "");
+            out_noreturn(i, "");
+        }
+        return;
     }
+    if (m < 2 || k >= (1ul << m)) {
+        out(-1);
+        return;
+    }
+    for (auto i : boost::irange(0ul, 1ul << m)) {
+        if (i == k) continue;
+        out_noreturn(i, "");
+    }
+    out_noreturn(0, "");
+    out_noreturn(k, "");
+    for (auto i : boost::irange(1ul, 1ul << m) | boost::adaptors::reversed) {
+        if (i == k) continue;
+        out_noreturn(i, "");
+    }
+    out_noreturn(k, "");
 }
 
 int main()
