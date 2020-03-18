@@ -93,15 +93,30 @@ void print(const T& container)
 
 void prog()
 {
-    int a, b;
-    std::cin >> a >> b;
-    if (a <= 5) {
-        out(0);
-    } else if (a <= 12) {
-        out(b / 2);
-    } else {
-        out(b);
+    auto n = read<int>();
+    auto m = read<int>();
+    auto a = read<std::uint64_t>(n);
+    auto bc = read<std::pair<std::uint64_t, std::uint64_t>>(m);
+    std::sort(std::begin(a), std::end(a));
+    std::sort(std::begin(bc), std::end(bc), [](auto a, auto b) {
+        if (a.second == b.second) return a.first > b.first;
+        return a.second > b.second;
+    });
+    auto it = std::lower_bound(a.begin(), a.end(), bc.front().second);
+    auto sum = std::accumulate(it, a.end(), 0ul);
+    a.resize(std::distance(a.begin(), it));
+    auto begin = a.begin();
+
+    // print(a);
+    for (auto i : boost::irange(0, m)) {
+        auto it = std::lower_bound(begin, a.end(), bc[i].second);
+        auto d = std::min<std::uint64_t>(bc[i].first, std::distance(begin, it));
+        // out(i, d, bc[i].second);
+        sum += d * bc[i].second;
+        begin += d;
     }
+    sum += std::accumulate(begin, a.end(), 0ul);
+    out(sum);
 }
 
 int main()

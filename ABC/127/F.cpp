@@ -93,14 +93,31 @@ void print(const T& container)
 
 void prog()
 {
-    int a, b;
-    std::cin >> a >> b;
-    if (a <= 5) {
-        out(0);
-    } else if (a <= 12) {
-        out(b / 2);
-    } else {
-        out(b);
+    int q = read<int>();
+    std::priority_queue<std::int64_t, std::vector<std::int64_t>, std::greater<>> q_min;
+    std::priority_queue<std::int64_t> q_max;
+    std::int64_t sum_b = 0, aa = 0;
+
+    for (int i = 0; i < q; ++i) {
+        if (read<int>() == 1) {
+            std::int64_t a, b;
+            std::cin >> a >> b;
+            sum_b += b;
+            q_min.push(a);
+            q_max.push(a);
+            // out("a", q_max.top(), q_min.top());
+            if (q_max.top() > q_min.top()) {
+                auto a = q_max.top();
+                auto b = q_min.top();
+                q_min.pop();
+                q_max.pop();
+                q_max.push(b);
+                q_min.push(a);
+                aa += std::abs(a - b);
+            }
+        } else {
+            out(q_max.top(), aa + sum_b);
+        }
     }
 }
 
